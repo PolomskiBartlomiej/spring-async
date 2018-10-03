@@ -8,6 +8,8 @@ import java.util.List;
 @Component
 class PaymentAPI {
     String pay(List<Product> products) {
-        return "Accept";
+        if (products.size() > 1) return "Accept";
+        throw new IllegalArgumentException();
+
     }
 }

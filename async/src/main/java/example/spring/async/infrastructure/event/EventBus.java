@@ -1,26 +1,32 @@
 package example.spring.async.infrastructure.event;
 
 import example.spring.async.domain.model.Product;
-import org.springframework.scheduling.annotation.Async;
+import example.spring.async.infrastructure.email.EmailService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Async
 @Component
+@RequiredArgsConstructor
 public class EventBus {
 
-    EmailService emailService;
+    final EmailService emailService;
 
-    public void handle(PaymentEvent paymentEvent, List<Product> products) {
+    public void handle(@NonNull PaymentEvent paymentEvent, List<Product> products) {
         final String massage;
         switch (paymentEvent) {
              case ACCEPT:
-                 massage = "Accept " + products.toString(); break;
+                 massage = "Accept payment for products : " + products.toString();
+                 break;
              case REJECTED:
-                 massage = "Sorry payment rejected for " + products.toString();
+                 massage = "Payment rejected for products : " + products.toString();
+                 break;
+             default:
+                 throw new IllegalArgumentException(paymentEvent.toString());
          }
 
-        emailService.sendMessage(massage)
+        emailService.sendMessage(massage);
     }
 }

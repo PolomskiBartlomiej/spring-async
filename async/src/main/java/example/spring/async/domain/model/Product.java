@@ -1,12 +1,11 @@
 package example.spring.async.domain.model;
 
-import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
 
 @Value
-@Builder
+@ToString
 public class Product {
-
-    private long id;
-    private long customerId;
+    long id;
+    long customerId;
 }
