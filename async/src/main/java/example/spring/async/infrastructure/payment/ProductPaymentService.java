@@ -4,7 +4,7 @@ import example.spring.async.domain.model.PaymentStatusEnum;
 import example.spring.async.domain.model.Product;
 import example.spring.async.domain.port.ProductPayment;
 import example.spring.async.infrastructure.event.EventBus;
-import example.spring.async.infrastructure.event.PaymentEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import java.util.concurrent.Executor;
 import static java.util.Objects.nonNull;
 
 @Async("paymentExecutor")
+@Slf4j
 @Service
 class ProductPaymentService implements ProductPayment {
 
@@ -36,10 +37,16 @@ class ProductPaymentService implements ProductPayment {
                 .supplyAsync(() -> paymentAPI.pay(products), paymentExecutor)
                 .thenApply(result -> PaymentStatusEnum.ACCEPT )
                 .whenComplete((result, ex) -> {
-                                PaymentEvent paymentEvent = nonNull(result) ?
-                                PaymentEvent.ACCEPT : PaymentEvent.REJECTED;
-                                eventBus.handle(paymentEvent,products);
-                         })
-                .exceptionally(ex -> PaymentStatusEnum.REJECTED);
+                                if(nonNull(result))
+                                eventBus.handleSuccessPayment(products);
+                              }
+                )
+                .exceptionally(ex -> {
+                              Throwable throwable = nonNull(ex.getCause())
+                                      ? ex.getCause()
+                                      : ex;
+                              log.error("Payment failed by", throwable);
+
+                              return PaymentStatusEnum.REJECTED; });
     }
 }

@@ -1,5 +1,6 @@
 package example.spring.async.domain.service;
 
+import example.spring.async.domain.model.PaymentStatusEnum;
 import example.spring.async.domain.model.Product;
 import example.spring.async.domain.port.ProductPayment;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ public class CartService {
 
     final ProductPayment productPayment;
 
-    public void buyProducts(List<Product> products) {
-        productPayment.toPayment(products);
+    public PaymentStatusEnum buyProducts(List<Product> products) {
+       return productPayment.toPayment(products).join();
     }
 }

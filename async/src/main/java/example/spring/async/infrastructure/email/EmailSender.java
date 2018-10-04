@@ -1,5 +1,6 @@
 package example.spring.async.infrastructure.email;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+@Slf4j
 @Async("emailExecutor")
 @Component
 class EmailSender {
@@ -19,6 +21,8 @@ class EmailSender {
 
     public CompletableFuture<Void> send(String massage, String email) {
        return CompletableFuture
-                .runAsync(() -> System.out.println("Send : " + massage), emailExecutor);
+                .runAsync(() -> log.info("Send email to : " + email
+                                        +" with massage : " + massage),
+                        emailExecutor);
     }
 }
